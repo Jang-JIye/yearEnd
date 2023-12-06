@@ -1,12 +1,13 @@
 package com.future.yearend.service;
 
-import com.future.yearend.Memo.Memo;
+import com.future.yearend.entity.Memo;
 import com.future.yearend.dto.MemoRequestDto;
 import com.future.yearend.dto.MemoResponseDto;
 import com.future.yearend.repository.MemoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,11 +31,6 @@ public class MemoService {
         return new MemoResponseDto(findMemo(id));
     }
 
-    private Memo findMemo(Long id) {
-        return memoRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("해당 메모는 존재하지 않습니다.")
-        );
-    }
 
     public ResponseEntity<String> updateMemo(Long id, MemoRequestDto memoRequestDto) {
         Memo memo = findMemo(id);
@@ -46,5 +42,13 @@ public class MemoService {
         Memo memo = findMemo(id);
         memoRepository.delete(memo);
         return ResponseEntity.ok("삭제 성공!");
+    }
+
+
+
+    private Memo findMemo(Long id) {
+        return memoRepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException("해당 메모는 존재하지 않습니다.")
+        );
     }
 }
