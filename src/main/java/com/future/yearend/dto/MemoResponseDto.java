@@ -2,6 +2,7 @@ package com.future.yearend.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.future.yearend.entity.Memo;
+import com.future.yearend.entity.User;
 import lombok.Getter;
 
 @Getter
@@ -15,9 +16,16 @@ public class MemoResponseDto {
     private String date;
 
 
+    public MemoResponseDto(Memo memo, User user) {
+        this.username = memo.getUser().getUsername();
+        this.phoneNum = memo.getUser().getPhoneNum();
+        this.nickname = memo.getNickname();
+        this.contents = memo.getContents();
+        this.date = memo.getDate();
+    }
     public MemoResponseDto(Memo memo) {
-        this.username = memo.getUsername();
-        this.phoneNum = memo.getPhoneNum();
+        this.username = memo.getUser().getUsername();
+        this.phoneNum = memo.getUser().getPhoneNum();
         this.nickname = memo.getNickname();
         this.contents = memo.getContents();
         this.date = memo.getDate();

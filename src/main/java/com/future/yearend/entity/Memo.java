@@ -17,11 +17,11 @@ public class Memo extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "username", nullable = true)
-    private String username;
-
-    @Column(name = "phoneNumber", nullable = false)
-    private String phoneNum;
+//    @Column(name = "username", nullable = true)
+//    private String username;
+//
+//    @Column(name = "phoneNumber", nullable = false)
+//    private String phoneNum;
 
     @Column(name = "nickname", nullable = false)
     private String nickname;
@@ -32,19 +32,25 @@ public class Memo extends TimeStamped {
     @Column(name = "date", nullable = false)
     private String date;
 
-    public Memo(MemoRequestDto memoRequestDto) {
-        this.username = memoRequestDto.getUsername();
-        this.phoneNum = memoRequestDto.getPhoneNum();
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    public Memo(MemoRequestDto memoRequestDto, User user) {
+//        this.username = user.getUsername();
+//        this.phoneNum = user.getPhoneNum();
         this.nickname = memoRequestDto.getNickname();
         this.contents = memoRequestDto.getContents();
         this.date = memoRequestDto.getDate();
+        this.user = user;
     }
 
-    public void update(MemoRequestDto memoRequestDto) {
-        this.username = memoRequestDto.getUsername();
-        this.phoneNum = memoRequestDto.getPhoneNum();
+    public void update(MemoRequestDto memoRequestDto, User user) {
+//        this.username = user.getUsername();
+//        this.phoneNum = user.getPhoneNum();
         this.nickname = memoRequestDto.getNickname();
         this.contents = memoRequestDto.getContents();
         this.date = memoRequestDto.getDate();
+        this.user = user;
     }
 }

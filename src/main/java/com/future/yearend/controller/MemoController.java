@@ -2,9 +2,11 @@ package com.future.yearend.controller;
 
 import com.future.yearend.dto.MemoRequestDto;
 import com.future.yearend.dto.MemoResponseDto;
+import com.future.yearend.security.UserDetailsImpl;
 import com.future.yearend.service.MemoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +20,9 @@ public class MemoController {
     private final MemoService memoService;
 
     @PostMapping("/year-end")
-    public MemoResponseDto createMemo(@RequestBody MemoRequestDto memoRequestDto) {
-        return memoService.createMemo(memoRequestDto);
+    public MemoResponseDto createMemo(@RequestBody MemoRequestDto memoRequestDto,
+                                      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return memoService.createMemo(memoRequestDto, userDetails.getUsername());
     }
 
     @GetMapping("/year-end")
@@ -33,12 +36,15 @@ public class MemoController {
     }
 
     @PutMapping("/year-end/{id}")
-    public ResponseEntity<String> updateMemo(@PathVariable Long id, @RequestBody MemoRequestDto memoRequestDto) {
-        return memoService.updateMemo(id, memoRequestDto);
+    public ResponseEntity<String> updateMemo(@PathVariable Long id,
+                                             @RequestBody MemoRequestDto memoRequestDto,
+                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return memoService.updateMemo(id, memoRequestDto, userDetails.getUsername());
     }
 
     @DeleteMapping("/year-end/{id}")
-    public ResponseEntity<String> deleteMemo(@PathVariable Long id) {
-        return memoService.deleteMemo(id);
+    public ResponseEntity<String> deleteMemo(@PathVariable Long id,
+                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return memoService.deleteMemo(id, userDetails.getUsername());
     }
 }
