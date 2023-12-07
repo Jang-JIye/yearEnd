@@ -1,5 +1,7 @@
-package com.future.yearend.entity;
+package com.future.yearend.user;
 
+import com.future.yearend.memo.Memo;
+import com.future.yearend.photo.Photo;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +27,9 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Memo> memoList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<Photo> photoList = new ArrayList<>();
 
     public User(String username, String phoneNum) {
         this.username = username;

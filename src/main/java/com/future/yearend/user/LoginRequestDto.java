@@ -1,4 +1,4 @@
-package com.future.yearend.dto;
+package com.future.yearend.user;
 
 import lombok.Getter;
 

@@ -1,7 +1,7 @@
-package com.future.yearend.entity;
+package com.future.yearend.memo;
 
 import com.future.yearend.common.TimeStamped;
-import com.future.yearend.dto.MemoRequestDto;
+import com.future.yearend.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,11 +17,11 @@ public class Memo extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @Column(name = "username", nullable = true)
-//    private String username;
-//
-//    @Column(name = "phoneNumber", nullable = false)
-//    private String phoneNum;
+    @Column(name = "username", nullable = false)
+    private String username;
+
+    @Column(name = "phoneNumber", nullable = false)
+    private String phoneNum;
 
     @Column(name = "nickname", nullable = false)
     private String nickname;
@@ -37,8 +37,8 @@ public class Memo extends TimeStamped {
     private User user;
 
     public Memo(MemoRequestDto memoRequestDto, User user) {
-//        this.username = user.getUsername();
-//        this.phoneNum = user.getPhoneNum();
+        this.username = user.getUsername();
+        this.phoneNum = user.getPhoneNum();
         this.nickname = memoRequestDto.getNickname();
         this.contents = memoRequestDto.getContents();
         this.date = memoRequestDto.getDate();
@@ -46,8 +46,8 @@ public class Memo extends TimeStamped {
     }
 
     public void update(MemoRequestDto memoRequestDto, User user) {
-//        this.username = user.getUsername();
-//        this.phoneNum = user.getPhoneNum();
+        this.username = user.getUsername();
+        this.phoneNum = user.getPhoneNum();
         this.nickname = memoRequestDto.getNickname();
         this.contents = memoRequestDto.getContents();
         this.date = memoRequestDto.getDate();

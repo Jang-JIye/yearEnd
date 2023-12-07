@@ -1,11 +1,9 @@
 package com.future.yearend.security;
 
-import com.future.yearend.entity.User;
+import com.future.yearend.user.User;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 public class UserDetailsImpl implements UserDetails {

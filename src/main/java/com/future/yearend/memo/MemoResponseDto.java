@@ -1,8 +1,7 @@
-package com.future.yearend.dto;
+package com.future.yearend.memo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.future.yearend.entity.Memo;
-import com.future.yearend.entity.User;
+import com.future.yearend.user.User;
 import lombok.Getter;
 
 @Getter

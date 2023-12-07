@@ -1,9 +1,6 @@
-package com.future.yearend.service;
+package com.future.yearend.user;
 
-import com.future.yearend.common.JwtUtil;
-import com.future.yearend.dto.LoginRequestDto;
-import com.future.yearend.entity.User;
-import com.future.yearend.repository.UserRepository;
+import com.future.yearend.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

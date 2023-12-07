@@ -1,8 +1,6 @@
-package com.future.yearend.controller;
+package com.future.yearend.user;
 
 
-import com.future.yearend.dto.LoginRequestDto;
-import com.future.yearend.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

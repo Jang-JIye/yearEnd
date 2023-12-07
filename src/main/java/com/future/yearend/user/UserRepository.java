@@ -1,6 +1,5 @@
-package com.future.yearend.repository;
+package com.future.yearend.user;
 
-import com.future.yearend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,8 +1,8 @@
 package com.future.yearend.security;
 
 
-import com.future.yearend.entity.User;
-import com.future.yearend.repository.UserRepository;
+import com.future.yearend.user.User;
+import com.future.yearend.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

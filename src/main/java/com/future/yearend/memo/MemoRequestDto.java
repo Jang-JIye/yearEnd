@@ -1,4 +1,4 @@
-package com.future.yearend.dto;
+package com.future.yearend.memo;
 
 import lombok.Getter;
 

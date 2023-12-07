@@ -1,6 +1,6 @@
 package com.future.yearend.config;
 
-import com.future.yearend.common.JwtUtil;
+import com.future.yearend.util.JwtUtil;
 import com.future.yearend.security.JwtAuthorizationFilter;
 import com.future.yearend.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -54,9 +54,7 @@ public class WebSecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        //configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
-//        configuration.setExposedHeaders(Arrays.asList("Authorization"));
         configuration.setExposedHeaders(Arrays.asList("*"));
         configuration.setMaxAge(1800L);
         configuration.setAllowCredentials(true);

@@ -1,4 +1,4 @@
-package com.future.yearend.common;
+package com.future.yearend.util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

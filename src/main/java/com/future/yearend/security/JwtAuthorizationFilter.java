@@ -1,6 +1,6 @@
 package com.future.yearend.security;
 
-import com.future.yearend.common.JwtUtil;
+import com.future.yearend.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

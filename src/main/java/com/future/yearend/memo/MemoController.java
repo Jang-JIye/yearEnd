@@ -1,9 +1,6 @@
-package com.future.yearend.controller;
+package com.future.yearend.memo;
 
-import com.future.yearend.dto.MemoRequestDto;
-import com.future.yearend.dto.MemoResponseDto;
 import com.future.yearend.security.UserDetailsImpl;
-import com.future.yearend.service.MemoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
