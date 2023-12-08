@@ -14,8 +14,8 @@ import org.springframework.context.annotation.Configuration;
 
 
 @OpenAPIDefinition(
-        info = @Info(title = "갈래 API 명세서",
-                description = "갈래 API 명세서",
+        info = @Info(title = "소망달력 API 명세서",
+                description = "소망달력 API 명세서",
                 version = "v3"),
         servers = {
                 @Server(url = "http://localhost:8080", description = "LocalHost Server"),

@@ -32,4 +32,25 @@ public class UserService {
         }
         return ResponseEntity.status(HttpStatus.OK).body("반가워요!");
     }
+
+    public ResponseEntity<UserResponseDto> getUsernameAndPhoneNum(User user) {
+        User existUser = checkUser(user); // 유저 확인
+        checkAuthority(existUser, user); //권한 확인
+
+        UserResponseDto userResponseDto = new UserResponseDto(existUser);
+        return ResponseEntity.ok(userResponseDto);
+    }
+
+    // 사용자 확인 메서드
+    private User checkUser(User user) {
+        return userRepository.findById(user.getId()).
+                orElseThrow(() -> new IllegalArgumentException("해당 사용자는 존재하지 않습니다."));
+    }
+
+    // ADMIN 권한 및 이메일 일치여부 메서드
+    private void checkAuthority(User existUser, User users) {
+        if (!existUser.getId().equals(users.getId())) {
+            throw new IllegalArgumentException("사용자가 일치하지 않습니다.");
+        }
+    }
 }
