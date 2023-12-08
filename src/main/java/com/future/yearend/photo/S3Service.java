@@ -53,7 +53,12 @@ public class S3Service {
 
     public List<Photo> getPhotos() {
         int photoNum = 12;
-        return s3Repository.findTop12ByOrderByCreatedAtDesc(PageRequest.of(0, photoNum));
+        List<Photo> photoList = s3Repository.findTop12ByOrderByCreatedAtDesc(PageRequest.of(0, photoNum));
+        if (photoList == null || photoList.size() < photoNum) {
+            return photoList;
+        } else {
+            return photoList.subList(0, photoNum);
+        }
     }
 
     public Optional<Photo> getPhoto(Long id) {

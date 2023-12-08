@@ -1,5 +1,6 @@
 package com.future.yearend.photo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.future.yearend.common.TimeStamped;
 import com.future.yearend.user.User;
 import jakarta.persistence.*;
@@ -18,9 +19,11 @@ public class Photo extends TimeStamped {
     private Long id;
 
     @Column(name = "username", nullable = false)
+    @JsonIgnore
     private String username;
 
     @Column(name = "phoneNumber", nullable = false)
+    @JsonIgnore
     private String phoneNum;
 
     @Column(nullable = false)
@@ -34,6 +37,7 @@ public class Photo extends TimeStamped {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
     public Photo(String photoURL, String photoName, String photoContentType, User user) {
