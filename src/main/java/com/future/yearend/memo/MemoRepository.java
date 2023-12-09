@@ -1,5 +1,6 @@
 package com.future.yearend.memo;
 
+import com.future.yearend.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,4 +12,6 @@ public interface MemoRepository extends JpaRepository<Memo, Long> {
 
 
     List<Memo> findAllByMonthAndDay(String month, String day);
+
+    List<Memo> findAllByUser(User user);
 }

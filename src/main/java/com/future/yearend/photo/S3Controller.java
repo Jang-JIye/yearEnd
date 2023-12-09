@@ -27,13 +27,13 @@ public class S3Controller {
 
     @GetMapping("/api/photo")
     @Operation(summary = "사진 12개 조회", description = "사진 12개 최신 조회 API 입니다.")
-    public List<Photo> getPhotos() {
+    public List<PhotoResponseDto> getPhotos() {
         return s3Service.getPhotos();
     }
 
     @GetMapping("/api/photo/{id}")
     @Operation(summary = "사진 개별 조회", description = "사진 개별 조회 API 입니다.")
-    public Optional<Photo> getPhoto(@PathVariable Long id) {
+    public ResponseEntity<PhotoResponseDto> getPhoto(@PathVariable Long id) {
         return s3Service.getPhoto(id);
     }
 

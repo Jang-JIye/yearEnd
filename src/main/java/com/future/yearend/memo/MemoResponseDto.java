@@ -10,6 +10,7 @@ public class MemoResponseDto {
     private String username;
     @JsonIgnore
     private String phoneNum;
+    private Long id;
     private String nickname;
     private String contents;
     //    private String date;
@@ -20,6 +21,7 @@ public class MemoResponseDto {
     public MemoResponseDto(Memo memo, User user) {
         this.username = memo.getUser().getUsername();
         this.phoneNum = memo.getUser().getPhoneNum();
+        this.id = memo.getId();
         this.nickname = memo.getNickname();
         this.contents = memo.getContents();
 //        this.date = memo.getDate();
@@ -29,6 +31,7 @@ public class MemoResponseDto {
     public MemoResponseDto(Memo memo) {
         this.username = memo.getUser().getUsername();
         this.phoneNum = memo.getUser().getPhoneNum();
+        this.id = memo.getId();
         this.nickname = memo.getNickname();
         this.contents = memo.getContents();
         this.month = memo.getMonth();

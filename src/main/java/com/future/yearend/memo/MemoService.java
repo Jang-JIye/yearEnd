@@ -71,6 +71,13 @@ public class MemoService {
         List<Memo> dayMemoList = memoRepository.findAllByMonthAndDay(month, day);
         return dayMemoList.stream().map(MemoResponseDto::new).collect(Collectors.toList());    }
 
+    public List<MemoResponseDto> getUserMemo(User user) {
+        User existUser = findUser(user.getUsername());
+        List<Memo> userMemoList = memoRepository.findAllByUser(existUser);
+
+        return userMemoList.stream().map(MemoResponseDto::new).collect(Collectors.toList());
+    }
+
     private Memo findMemo(Long id) {
         return memoRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("해당 메모는 존재하지 않습니다.")

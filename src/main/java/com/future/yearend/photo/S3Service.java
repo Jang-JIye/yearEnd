@@ -3,6 +3,7 @@ package com.future.yearend.photo;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.future.yearend.common.UserRoleEnum;
+import com.future.yearend.memo.MemoResponseDto;
 import com.future.yearend.user.User;
 import com.future.yearend.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,10 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.geom.RectangularShape;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -52,19 +53,21 @@ public class S3Service {
         }
     }
 
-    public List<Photo> getPhotos() {
+    public List<PhotoResponseDto> getPhotos() {
         int photoNum = 12;
         List<Photo> photoList = s3Repository.findTop12ByOrderByCreatedAtDesc(PageRequest.of(0, photoNum));
         if (photoList == null || photoList.size() < photoNum) {
-            return photoList;
+            return photoList.stream().map(PhotoResponseDto::new).collect(Collectors.toList());
         } else {
-            return photoList.subList(0, photoNum);
+            return photoList.subList(0, photoNum).stream().map(PhotoResponseDto::new).collect(Collectors.toList());
         }
     }
 
-    public Optional<Photo> getPhoto(Long id) {
+    public ResponseEntity<PhotoResponseDto> getPhoto(Long id) {
         Photo photo = findPhoto(id);
-        return s3Repository.findById(id);
+        PhotoResponseDto photoResponseDto = new PhotoResponseDto(photo);
+        return ResponseEntity.ok(photoResponseDto);
+
     }
 
     public ResponseEntity<String> deletePhoto(Long id, String username) {
