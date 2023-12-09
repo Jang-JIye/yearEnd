@@ -1,5 +1,6 @@
 package com.future.yearend.memo;
 
+import com.future.yearend.common.UserRoleEnum;
 import com.future.yearend.util.JwtUtil;
 import com.future.yearend.user.User;
 import com.future.yearend.user.UserRepository;
@@ -39,7 +40,7 @@ public class MemoService {
         Memo memo = findMemo(id);
         User user = findUser(username);
 
-        if (!memo.getUser().getUsername().equals(username)) {
+        if (user.getUserRole().equals(UserRoleEnum.USER) && !memo.getUser().getUsername().equals(username)) {
             throw new IllegalArgumentException("작성자가 다릅니다.");
         }
 
@@ -53,7 +54,7 @@ public class MemoService {
         Memo memo = findMemo(id);
         User user = findUser(username);
 
-        if (!memo.getUser().getUsername().equals(username)) {
+        if (user.getUserRole().equals(UserRoleEnum.USER) && !memo.getUser().getUsername().equals(username)) {
             throw new IllegalArgumentException("작성자가 다릅니다.");
         }
 

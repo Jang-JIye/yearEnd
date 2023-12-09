@@ -2,6 +2,7 @@ package com.future.yearend.photo;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.future.yearend.common.UserRoleEnum;
 import com.future.yearend.user.User;
 import com.future.yearend.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -69,7 +70,7 @@ public class S3Service {
     public ResponseEntity<String> deletePhoto(Long id, String username) {
         User user = findUser(username);
         Photo photo = findPhoto(id);
-        if (user != photo.getUser()) {
+        if (user.getUserRole().equals(UserRoleEnum.USER) && !photo.getUser().equals(user)) {
             throw new IllegalArgumentException("해당 이미지의 작성자와 다릅니다.");
         }
         s3Repository.delete(photo);

@@ -1,8 +1,10 @@
 package com.future.yearend.user;
 
+import com.future.yearend.common.UserRoleEnum;
 import com.future.yearend.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -14,20 +16,28 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
+
+    @Value("${ADMIN_TOKEN}")
+    private String ADMIN_TOKEN;
+
     public ResponseEntity<String> signup(HttpServletResponse response, LoginRequestDto loginRequestDto) {
         String username = loginRequestDto.getUsername();
         String phoneNum = loginRequestDto.getPhoneNum();
+        UserRoleEnum userRole = UserRoleEnum.USER;
 
+        if (loginRequestDto.getAdminToken().equals(ADMIN_TOKEN)) {
+            userRole = UserRoleEnum.ADMIN;
+        }
         Optional<User> existUser = userRepository.findByUsernameAndPhoneNum(username, phoneNum);
         if (existUser.isPresent()) {
-            String token = jwtUtil.createToken(username, phoneNum);
+            String token = jwtUtil.createToken(username, userRole, phoneNum);
             response.addHeader("Authorization", token);
         } else {
             // 회원가입
-            User user = new User(username, phoneNum);
+            User user = new User(username, phoneNum, userRole);
             userRepository.save(user);
             //로그인
-            String token = jwtUtil.createToken(username, phoneNum);
+            String token = jwtUtil.createToken(username, userRole,phoneNum);
             response.addHeader("Authorization", token);
         }
         return ResponseEntity.status(HttpStatus.OK).body("반가워요!");
@@ -47,9 +57,9 @@ public class UserService {
                 orElseThrow(() -> new IllegalArgumentException("해당 사용자는 존재하지 않습니다."));
     }
 
-    // ADMIN 권한 및 이메일 일치여부 메서드
-    private void checkAuthority(User existUser, User users) {
-        if (!existUser.getId().equals(users.getId())) {
+    // 권한
+    private void checkAuthority(User existUser, User user) {
+        if (user.getUserRole().equals(UserRoleEnum.USER) && !existUser.getId().equals(user.getId())) {
             throw new IllegalArgumentException("사용자가 일치하지 않습니다.");
         }
     }
