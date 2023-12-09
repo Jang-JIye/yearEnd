@@ -61,7 +61,14 @@ public class MemoService {
         return ResponseEntity.ok("삭제 성공!");
     }
 
+    public List<MemoResponseDto> getMonthMemo(String month) {
+        List<Memo> monthMemoList = memoRepository.findAllByMonth(month);
+        return monthMemoList.stream().map(MemoResponseDto::new).collect(Collectors.toList());
+    }
 
+    public List<MemoResponseDto> getDayMemo(String month,String day) {
+        List<Memo> dayMemoList = memoRepository.findAllByMonthAndDay(month, day);
+        return dayMemoList.stream().map(MemoResponseDto::new).collect(Collectors.toList());    }
 
     private Memo findMemo(Long id) {
         return memoRepository.findById(id).orElseThrow(

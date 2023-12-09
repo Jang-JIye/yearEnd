@@ -29,8 +29,13 @@ public class Memo extends TimeStamped {
     @Column(name = "contents", nullable = false)
     private String contents;
 
-    @Column(name = "date", nullable = false)
-    private String date;
+    //    @Column(name = "date", nullable = false)
+//    private String date;
+    @Column(name = "month", nullable = false)
+    private String month;
+
+    @Column(name = "day", nullable = false)
+    private String day;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -41,7 +46,9 @@ public class Memo extends TimeStamped {
         this.phoneNum = user.getPhoneNum();
         this.nickname = memoRequestDto.getNickname();
         this.contents = memoRequestDto.getContents();
-        this.date = memoRequestDto.getDate();
+//        this.date = memoRequestDto.getDate();
+        this.month = memoRequestDto.getMonth();
+        this.day = memoRequestDto.getDay();
         this.user = user;
     }
 
@@ -50,7 +57,8 @@ public class Memo extends TimeStamped {
         this.phoneNum = user.getPhoneNum();
         this.nickname = memoRequestDto.getNickname();
         this.contents = memoRequestDto.getContents();
-        this.date = memoRequestDto.getDate();
+        this.month = memoRequestDto.getMonth();
+        this.day = memoRequestDto.getDay();
         this.user = user;
     }
 }

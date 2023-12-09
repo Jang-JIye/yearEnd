@@ -52,4 +52,20 @@ public class MemoController {
                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return memoService.deleteMemo(id, userDetails.getUsername());
     }
+
+    @GetMapping("/year-end/month/{month}")
+    @Operation(summary = "소망 월별 조회", description = "소망 월별 조회 API 입니다.")
+    public List<MemoResponseDto> getMonthMemo(@PathVariable String month) {
+        return memoService.getMonthMemo(month);
+    }
+
+    @GetMapping("/year-end/month/{month}/day/{day}")
+    @Operation(summary = "소망 일별 조회", description = "소망 일별 조회 API 입니다.")
+    public List<MemoResponseDto> getDayMemo(@PathVariable String month,
+                                            @PathVariable String day) {
+        return memoService.getDayMemo(month, day);
+    }
+
+
+
 }

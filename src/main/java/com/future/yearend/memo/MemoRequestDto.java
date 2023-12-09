@@ -9,5 +9,7 @@ public class MemoRequestDto {
     private String phoneNum;
     private String nickname;
     private String contents;
-    private String date;
+    //    private String date;
+    private String month;
+    private String day;
 }

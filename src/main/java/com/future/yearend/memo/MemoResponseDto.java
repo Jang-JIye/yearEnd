@@ -12,7 +12,9 @@ public class MemoResponseDto {
     private String phoneNum;
     private String nickname;
     private String contents;
-    private String date;
+    //    private String date;
+    private String month;
+    private String day;
 
 
     public MemoResponseDto(Memo memo, User user) {
@@ -20,13 +22,16 @@ public class MemoResponseDto {
         this.phoneNum = memo.getUser().getPhoneNum();
         this.nickname = memo.getNickname();
         this.contents = memo.getContents();
-        this.date = memo.getDate();
+//        this.date = memo.getDate();
+        this.month = memo.getMonth();
+        this.day = memo.getDay();
     }
     public MemoResponseDto(Memo memo) {
         this.username = memo.getUser().getUsername();
         this.phoneNum = memo.getUser().getPhoneNum();
         this.nickname = memo.getNickname();
         this.contents = memo.getContents();
-        this.date = memo.getDate();
+        this.month = memo.getMonth();
+        this.day = memo.getDay();
     }
 }
