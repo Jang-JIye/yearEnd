@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api")
 @RequiredArgsConstructor
 @Tag(name = "캘린더 관련 API", description = "캘린더 소망 관련 API 입니다.")
