@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.nio.channels.IllegalChannelGroupException;
 import java.util.Optional;
 
 @Service
@@ -37,6 +38,9 @@ public class UserService {
             User user = new User(username, phoneNum, userRole);
             userRepository.save(user);
             //로그인
+            if (!loginRequestDto.getPhoneNum().equals(user.getPhoneNum())) {
+                throw new IllegalArgumentException("핸드폰 뒷번호 4자리가 일치하지 않습니다.");
+            }
             String token = jwtUtil.createToken(username, userRole,phoneNum);
             response.addHeader("Authorization", token);
         }
