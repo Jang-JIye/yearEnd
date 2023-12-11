@@ -6,8 +6,8 @@ import lombok.Getter;
 public class S3ResponseDto {
     private Long photoId;
     private String photoURL;
-    private String picturesName;
-    private String pictureContentType;
+    private String photoName;
+    private String photoContentType;
 
     public S3ResponseDto(Photo photo) {
         this.photoId = photo.getId();

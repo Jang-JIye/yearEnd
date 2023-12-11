@@ -28,21 +28,23 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public ResponseEntity<String> uploadPhoto(MultipartFile file, String username) {
+    public ResponseEntity<String> uploadPhoto(MultipartFile file, String month, String username) {
         User user = findUser(username);
 
         String photoName = file.getOriginalFilename();
-        String photoURL = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + photoName;
+        String folderPath = month;
+        String photoKey = folderPath + "/" + photoName;
+        String photoURL = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + photoKey;
         String photoContentType = file.getContentType();
 
         try {
             // S3 버킷에 파일 업로드
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(photoContentType);
-            amazonS3Client.putObject(bucket, photoName, file.getInputStream(), metadata);
+            amazonS3Client.putObject(bucket + "/"+folderPath, photoName, file.getInputStream(), metadata);
 
             // 데이터베이스에 사진 정보 저장
-            Photo photo = new Photo(photoURL, photoName, photoContentType, user);
+            Photo photo = new Photo(photoURL, photoName, photoContentType, month, user);
             s3Repository.save(photo);
 
             return ResponseEntity.ok(photoURL);
@@ -67,7 +69,14 @@ public class S3Service {
         Photo photo = findPhoto(id);
         PhotoResponseDto photoResponseDto = new PhotoResponseDto(photo);
         return ResponseEntity.ok(photoResponseDto);
+    }
 
+    public List<PhotoResponseDto> getMonthPhotos(String month) {
+        List<Photo> monthPhotoList = s3Repository.findAllByMonth(month);
+        if (monthPhotoList == null) {
+            throw new IllegalArgumentException("등록된 사진이 없습니다.");
+        }
+        return monthPhotoList.stream().map(PhotoResponseDto::new).collect(Collectors.toList());
     }
 
     public ResponseEntity<String> deletePhoto(Long id, String username) {
@@ -89,5 +98,4 @@ public class S3Service {
                 ()-> new IllegalArgumentException("해당 작성자는 존재하지 않습니다.")
         );
     }
-
 }

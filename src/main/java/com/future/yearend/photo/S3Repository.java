@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface S3Repository extends JpaRepository<Photo, Long> {
     List<Photo> findTop12ByOrderByCreatedAtDesc(PageRequest of);
+
+    List<Photo> findAllByMonth(String month);
 }

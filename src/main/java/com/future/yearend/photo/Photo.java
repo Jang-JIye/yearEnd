@@ -35,15 +35,19 @@ public class Photo extends TimeStamped {
     @Column(nullable = true)
     private String photoContentType;
 
+    @Column(nullable = false)
+    private String month;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
 
-    public Photo(String photoURL, String photoName, String photoContentType, User user) {
+    public Photo(String photoURL, String photoName, String photoContentType, String month, User user) {
         this.photoURL = photoURL;
         this.photoName = photoName;
         this.photoContentType = photoContentType;
+        this.month = month;
         this.user = user;
         this.username = user.getUsername();
         this.phoneNum = user.getPhoneNum();
