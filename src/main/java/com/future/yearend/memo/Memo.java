@@ -52,6 +52,16 @@ public class Memo extends TimeStamped {
         this.user = user;
     }
 
+    public Memo(String username,String phoneNum,String nickname,String contents, String month, String day, User user) {
+        this.username = user.getUsername();
+        this.phoneNum = user.getPhoneNum();
+        this.nickname = nickname;
+        this.contents = contents;
+        this.month = month;
+        this.day = day;
+        this.user = user;
+    }
+
     public void update(MemoRequestDto memoRequestDto, User user) {
         this.username = user.getUsername();
         this.phoneNum = user.getPhoneNum();

@@ -20,7 +20,12 @@ public class MemoService {
 
     public MemoResponseDto createMemo(MemoRequestDto memoRequestDto, String username) {
         User user = findUser(username);
-        Memo memo = new Memo(memoRequestDto, user);
+        String nickname = memoRequestDto.getNickname();
+        if (memoRequestDto.getNickname() == null) {
+            nickname = createRandomNickName();
+        }
+        Memo memo = new Memo(user.getUsername(), user.getPhoneNum(), nickname,
+                memoRequestDto.getContents(), memoRequestDto.getMonth(), memoRequestDto.getDay(), user);
 
         Memo saveMemo = memoRepository.save(memo);
         return new MemoResponseDto(saveMemo, user);
@@ -87,5 +92,27 @@ public class MemoService {
         return userRepository.findByUsername(username).orElseThrow(
                 ()-> new IllegalArgumentException("해당 작성자는 존재하지 않습니다.")
         );
+    }
+
+    // 랜덤 닉네임 생성 메서드
+    public String createRandomNickName() {
+        String[] nickname1 =
+                {"행복한", "즐거운", "평화로운", "요망진", "귀여운", "화가난", "달리는", "잠자는", "놀고있는", "하늘을 나는", "여행가고싶은", "영앤리치", "바쁘다바빠!", "하고싶은 말이 많은", "어른스러운", "깜찍한", "엉뚱한", "소심한", "화이팅!", "두둠칫"};
+        String[] nickname2 =
+                {"강아지", "고양이", "곰", "여우", "오리", "햄스터", "다람쥐", "돌고래", "패럿", "앵무새", "노루"};
+
+        int maxCreateRandomNickName = nickname1.length * nickname2.length; // 경우의 수
+        int maxTries = 300;
+        for (int tries = 0; tries < maxTries; tries++) {
+            int random1 = (int) (Math.random() * nickname1.length);
+            int random2 = (int) (Math.random() * nickname2.length);
+
+            String randomNickname = nickname1[random1] + " " + nickname2[random2];
+
+            if (!memoRepository.existsByNickname(randomNickname)) {
+                return randomNickname;
+            }
+        }
+        throw new IllegalArgumentException("닉네임 생성에 실패하였습니다.");
     }
 }

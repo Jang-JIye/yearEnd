@@ -14,4 +14,6 @@ public interface MemoRepository extends JpaRepository<Memo, Long> {
     List<Memo> findAllByMonthAndDay(String month, String day);
 
     List<Memo> findAllByUser(User user);
+
+    boolean existsByNickname(String randomNickname);
 }
