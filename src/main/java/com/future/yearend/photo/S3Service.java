@@ -28,8 +28,8 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public ResponseEntity<String> uploadPhoto(MultipartFile file, String month, String username) {
-        User user = findUser(username);
+    public ResponseEntity<String> uploadPhoto(MultipartFile file, String month, User user) {
+        User existsUser = findUser(user.getId());
 
         String photoName = file.getOriginalFilename();
         String folderPath = month;
@@ -44,7 +44,7 @@ public class S3Service {
             amazonS3Client.putObject(bucket + "/"+folderPath, photoName, file.getInputStream(), metadata);
 
             // 데이터베이스에 사진 정보 저장
-            Photo photo = new Photo(photoURL, photoName, photoContentType, month, user);
+            Photo photo = new Photo(photoURL, photoName, photoContentType, month, existsUser);
             s3Repository.save(photo);
 
             return ResponseEntity.ok(photoURL);
@@ -79,10 +79,10 @@ public class S3Service {
         return monthPhotoList.stream().map(PhotoResponseDto::new).collect(Collectors.toList());
     }
 
-    public ResponseEntity<String> deletePhoto(Long id, String username) {
-        User user = findUser(username);
+    public ResponseEntity<String> deletePhoto(Long id, User user) {
+        User existsUser = findUser(user.getId());
         Photo photo = findPhoto(id);
-        if (user.getUserRole().equals(UserRoleEnum.USER) && !photo.getUser().equals(user)) {
+        if (existsUser.getUserRole().equals(UserRoleEnum.USER) && !photo.getUser().equals(existsUser)) {
             throw new IllegalArgumentException("해당 이미지의 작성자와 다릅니다.");
         }
         s3Repository.delete(photo);
@@ -93,8 +93,8 @@ public class S3Service {
                 ()-> new IllegalArgumentException("해당 이미지가 존재하지 않습니다.")
         );
     }
-    private User findUser(String username) {
-        return userRepository.findByUsername(username).orElseThrow(
+    private User findUser(Long id) {
+        return userRepository.findById(id).orElseThrow(
                 ()-> new IllegalArgumentException("해당 작성자는 존재하지 않습니다.")
         );
     }

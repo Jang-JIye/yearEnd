@@ -23,7 +23,7 @@ public class S3Controller {
     public ResponseEntity<String> uploadPhoto(@RequestParam(value = "file", required = false) MultipartFile file,
                                               @RequestParam("month")String month,
                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return s3Service.uploadPhoto(file, month, userDetails.getUsername());
+        return s3Service.uploadPhoto(file, month, userDetails.getUser());
     }
 
     @GetMapping("/api/photo")
@@ -32,7 +32,7 @@ public class S3Controller {
         return s3Service.getPhotos();
     }
 
-    @GetMapping("/api/photo/{month}")
+    @GetMapping("/api/photo/{id}")
     @Operation(summary = "사진 개별 조회", description = "사진 개별 조회 API 입니다.")
     public ResponseEntity<PhotoResponseDto> getPhoto(@PathVariable Long id) {
         return s3Service.getPhoto(id);
@@ -47,6 +47,6 @@ public class S3Controller {
     @DeleteMapping("/api/photo/{id}")
     @Operation(summary = "사진 삭제", description = "사진 삭제 API 입니다.")
     public ResponseEntity<String> deletePhoto(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return s3Service.deletePhoto(id, userDetails.getUsername());
+        return s3Service.deletePhoto(id, userDetails.getUser());
     }
 }
