@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MemoRepository extends JpaRepository<Memo, Long> {
@@ -16,4 +17,6 @@ public interface MemoRepository extends JpaRepository<Memo, Long> {
     List<Memo> findAllByUser(User user);
 
     boolean existsByNickname(String randomNickname);
+
+    Optional<Object> findByNickname(String nickname);
 }

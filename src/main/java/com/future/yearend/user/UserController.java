@@ -8,10 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,4 +26,21 @@ public class UserController {
     public ResponseEntity<UserResponseDto> getUsernameAndPhoneNum(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return userService.getUsernameAndPhoneNum(userDetails.getUser());
     }
+
+    //------------- admin ----------------
+    @GetMapping("/api/admin/username/{username}")
+    @Operation(summary = "어드민 사용자 조회", description = "사용자 이름으로 조회하는 API 입니다.")
+    public ResponseEntity<UserResponseDto> getUserByUsername(@PathVariable String username,
+                                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return userService.getUserByUsername(username, userDetails.getUser());
+    }
+
+    @GetMapping("/api/admin/nickname/{nickname}")
+    @Operation(summary = "어드민 사용자 닉네임 조회", description = "사용자 닉네임으로 조회하는 API 입니다.")
+    public ResponseEntity<UserResponseDto> getUserByNickname(@PathVariable String nickname,
+                                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return userService.getUserByNickname(nickname, userDetails.getUser());
+    }
+
+
 }

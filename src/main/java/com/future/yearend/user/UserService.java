@@ -1,6 +1,8 @@
 package com.future.yearend.user;
 
 import com.future.yearend.common.UserRoleEnum;
+import com.future.yearend.memo.Memo;
+import com.future.yearend.memo.MemoRepository;
 import com.future.yearend.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -9,13 +11,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.nio.channels.IllegalChannelGroupException;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final MemoRepository memoRepository;
     private final JwtUtil jwtUtil;
 
     @Value("${ADMIN_TOKEN}")
@@ -55,6 +57,29 @@ public class UserService {
         return ResponseEntity.ok(userResponseDto);
     }
 
+    public ResponseEntity<UserResponseDto> getUserByUsername(String username, User user) {
+        User existUser = checkUser(user); // 유저 확인
+        checkAuthority(existUser, user); //권한 확인
+        if (!user.getUserRole().equals(UserRoleEnum.USER)) {
+            throw new IllegalArgumentException("어드민 계정이 아닙니다.");
+        }
+        User findUser = findUser(username);
+        UserResponseDto userResponseDto = new UserResponseDto(findUser);
+        return ResponseEntity.ok(userResponseDto);
+    }
+
+    public ResponseEntity<UserResponseDto> getUserByNickname(String nickname, User user) {
+        User existUser = checkUser(user); // 유저 확인
+        checkAuthority(existUser, user); //권한 확인
+        if (!user.getUserRole().equals(UserRoleEnum.USER)) {
+            throw new IllegalArgumentException("어드민 계정이 아닙니다.");
+        }
+        Memo findMemo = findMemo(nickname);
+        User findUser = findUser(findMemo.getUsername());
+        UserResponseDto userResponseDto = new UserResponseDto(findUser);
+        return ResponseEntity.ok(userResponseDto);
+    }
+
     // 사용자 확인 메서드
     private User checkUser(User user) {
         return userRepository.findById(user.getId()).
@@ -66,5 +91,17 @@ public class UserService {
         if (user.getUserRole().equals(UserRoleEnum.USER) && !existUser.getId().equals(user.getId())) {
             throw new IllegalArgumentException("사용자가 일치하지 않습니다.");
         }
+    }
+
+    private User findUser(String username) {
+        return userRepository.findByUsername(username).orElseThrow(
+                ()-> new IllegalArgumentException("해당 작성자는 존재하지 않습니다.")
+        );
+    }
+
+    private Memo findMemo(String nickname) {
+        return (Memo) memoRepository.findByNickname(nickname).orElseThrow(
+                () -> new IllegalArgumentException("해당 메모는 존재하지 않습니다.")
+        );
     }
 }
