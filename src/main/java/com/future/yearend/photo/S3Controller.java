@@ -40,14 +40,16 @@ public class S3Controller {
 
     @GetMapping("/api/photo/month/{month}")
     @Operation(summary = "사진 월별 조회", description = "사진 월별 조회 API 입니다.")
-    public List<PhotoResponseDto> getMonthPhotos(@PathVariable String month) {
-        return s3Service.getMonthPhotos(month);
+    public List<PhotoResponseDto> getMonthPhotos(@PathVariable String month,
+                                                 @RequestParam(defaultValue = "0") int page,
+                                                 @RequestParam(defaultValue = "3") int size) {
+        return s3Service.getMonthPhotos(month, page, size);
     }
 
     @GetMapping("/api/photo/last-photos")
     @Operation(summary = "월별 최신 사진 리스트 조회", description = "월별 최신 사진 리스트 조회 API 입니다.")
-    public List<List<PhotoResponseDto>> getLastPhotoByMonth() {
-        return s3Service.getLastPhotoByMonth();
+    public List<PhotoResponseDto> getLatestPhotoOfEachMonth() {
+        return s3Service.getLatestPhotoOfEachMonth();
     }
 
     @DeleteMapping("/api/photo/{id}")

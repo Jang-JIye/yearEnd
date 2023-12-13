@@ -9,7 +9,9 @@ import com.future.yearend.user.User;
 import com.future.yearend.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,9 +35,9 @@ public class S3Service {
     public ResponseEntity<String> uploadPhoto(MultipartFile file, String month, User user) {
         User existsUser = findUser(user.getId());
 
-        String photoName = file.getOriginalFilename();
+        String uniqueFileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
         String folderPath = month;
-        String photoKey = folderPath + "/" + photoName;
+        String photoKey = folderPath + "/" + uniqueFileName;
         String photoURL = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + photoKey;
         String photoContentType = file.getContentType();
 
@@ -43,10 +45,10 @@ public class S3Service {
             // S3 버킷에 파일 업로드
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(photoContentType);
-            amazonS3Client.putObject(bucket + "/" + folderPath, photoName, file.getInputStream(), metadata);
+            amazonS3Client.putObject(bucket + "/" + folderPath, uniqueFileName, file.getInputStream(), metadata);
 
             // 데이터베이스에 사진 정보 저장
-            Photo photo = new Photo(photoURL, photoName, photoContentType, month, existsUser);
+            Photo photo = new Photo(photoURL, uniqueFileName, photoContentType, month, existsUser);
             s3Repository.save(photo);
 
             return ResponseEntity.ok(photoURL);
@@ -73,36 +75,61 @@ public class S3Service {
         return ResponseEntity.ok(photoResponseDto);
     }
 
-    public List<PhotoResponseDto> getMonthPhotos(String month) {
+    public List<PhotoResponseDto> getMonthPhotos(String month, int page, int size) {
         List<Photo> monthPhotoList = s3Repository.findAllByMonth(month);
-        if (monthPhotoList == null) {
-            throw new IllegalArgumentException("등록된 사진이 없습니다.");
+
+        if (monthPhotoList == null || monthPhotoList.isEmpty()) {
+            throw new IllegalArgumentException("해당 월에 등록된 사진이 없습니다.");
         }
-        return monthPhotoList.stream().map(PhotoResponseDto::new).collect(Collectors.toList());
+        int start = Math.min(page * size, monthPhotoList.size());
+        int end = Math.min(start + size, monthPhotoList.size());
+
+        if (start > end) {
+            throw new IllegalArgumentException("요청 페이지가 올바르지 않습니다.");
+        }
+        return monthPhotoList.subList(start, end).stream()
+                .map(PhotoResponseDto::new)
+                .collect(Collectors.toList());
     }
 
-    public List<List<PhotoResponseDto>> getLastPhotoByMonth() {
-        List<List<PhotoResponseDto>> photosByMonth = new ArrayList<>();
 
-        for (int i = 1; i <= 12; i++) {
-            String month = String.valueOf(i);
-            List<Photo> monthPhotoList = s3Repository.findLatestPhotosByMonth(month);
+//public List<PhotoResponseDto> getLatestPhotoOfEachMonth() {
+//    List<List<Photo>> photosByMonth = new ArrayList<>();
+//
+//    for (int i = 1; i <= 12; i++) {
+//        String month = String.valueOf(i);
+//        List<Photo> monthPhotoList = s3Repository.findLatestPhotosByMonth(month);
+//        photosByMonth.add(monthPhotoList);
+//    }
+//    return photosByMonth.stream()
+//            .filter(Objects::nonNull)
+//            .map(monthPhotos -> {
+//                if (monthPhotos.isEmpty()) {
+//                    return null;
+//                }
+//                return monthPhotos.stream()
+//                        .max(Comparator.comparing(Photo::getCreatedAt))
+//                        .map(PhotoResponseDto::new)
+//                        .orElse(null);
+//            })
+//            .collect(Collectors.toList());
+//}
+public List<PhotoResponseDto> getLatestPhotoOfEachMonth() {
+    List<PhotoResponseDto> latestPhotosByMonth = new ArrayList<>();
 
-            if (monthPhotoList != null && !monthPhotoList.isEmpty()) {
-                Optional<Photo> latestPhoto = monthPhotoList.stream()
-                        .max(Comparator.comparing(Photo::getCreatedAt));
+    for (int i = 1; i <= 12; i++) {
+        String month = String.valueOf(i);
+        List<Photo> monthPhotoList = s3Repository.findLatestPhotosByMonth(month);
 
-                List<PhotoResponseDto> latestPhotoList = latestPhoto.map(Collections::singletonList)
-                        .map(photos -> photos.stream().map(PhotoResponseDto::new).collect(Collectors.toList()))
-                        .orElse(Collections.emptyList());
-
-                photosByMonth.add(latestPhotoList);
-            } else {
-                photosByMonth.add(Collections.emptyList());
-            }
+        if (monthPhotoList != null && !monthPhotoList.isEmpty()) {
+            monthPhotoList.stream()
+                    .max(Comparator.comparing(Photo::getCreatedAt)).
+                    ifPresent(latestPhotoOfTheMonth -> latestPhotosByMonth.add(new PhotoResponseDto(latestPhotoOfTheMonth)));
         }
-        return photosByMonth;
     }
+    return latestPhotosByMonth;
+}
+
 
     public ResponseEntity<String> deletePhoto(Long id, User user) {
         User existsUser = findUser(user.getId());
