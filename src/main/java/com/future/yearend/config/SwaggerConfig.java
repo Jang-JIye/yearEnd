@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Configuration;
                 version = "v3"),
         servers = {
                 @Server(url = "http://localhost:8080", description = "LocalHost Server"),
-                @Server(url = "http://34.226.210.22", description = "Http Server"),
+                @Server(url = "http://34.202.217.163", description = "Http Server"),
                 @Server(url = "https://hopecalender8.com", description = "Https Server")
 
         })
