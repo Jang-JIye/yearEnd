@@ -2,6 +2,7 @@ package com.future.yearend.photo;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.transfer.Copy;
 import com.future.yearend.common.UserRoleEnum;
 import com.future.yearend.memo.MemoResponseDto;
 import com.future.yearend.user.User;
@@ -14,8 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
+import java.text.DateFormatSymbols;
+import java.time.Month;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,7 +43,7 @@ public class S3Service {
             // S3 버킷에 파일 업로드
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(photoContentType);
-            amazonS3Client.putObject(bucket + "/"+folderPath, photoName, file.getInputStream(), metadata);
+            amazonS3Client.putObject(bucket + "/" + folderPath, photoName, file.getInputStream(), metadata);
 
             // 데이터베이스에 사진 정보 저장
             Photo photo = new Photo(photoURL, photoName, photoContentType, month, existsUser);
@@ -79,6 +81,29 @@ public class S3Service {
         return monthPhotoList.stream().map(PhotoResponseDto::new).collect(Collectors.toList());
     }
 
+    public List<List<PhotoResponseDto>> getLastPhotoByMonth() {
+        List<List<PhotoResponseDto>> photosByMonth = new ArrayList<>();
+
+        for (int i = 1; i <= 12; i++) {
+            String month = String.valueOf(i);
+            List<Photo> monthPhotoList = s3Repository.findLatestPhotosByMonth(month);
+
+            if (monthPhotoList != null && !monthPhotoList.isEmpty()) {
+                Optional<Photo> latestPhoto = monthPhotoList.stream()
+                        .max(Comparator.comparing(Photo::getCreatedAt));
+
+                List<PhotoResponseDto> latestPhotoList = latestPhoto.map(Collections::singletonList)
+                        .map(photos -> photos.stream().map(PhotoResponseDto::new).collect(Collectors.toList()))
+                        .orElse(Collections.emptyList());
+
+                photosByMonth.add(latestPhotoList);
+            } else {
+                photosByMonth.add(Collections.emptyList());
+            }
+        }
+        return photosByMonth;
+    }
+
     public ResponseEntity<String> deletePhoto(Long id, User user) {
         User existsUser = findUser(user.getId());
         Photo photo = findPhoto(id);
@@ -88,14 +113,16 @@ public class S3Service {
         s3Repository.delete(photo);
         return ResponseEntity.ok("삭제 성공!");
     }
+
     private Photo findPhoto(Long id) {
         return s3Repository.findById(id).orElseThrow(
-                ()-> new IllegalArgumentException("해당 이미지가 존재하지 않습니다.")
+                () -> new IllegalArgumentException("해당 이미지가 존재하지 않습니다.")
         );
     }
+
     private User findUser(Long id) {
         return userRepository.findById(id).orElseThrow(
-                ()-> new IllegalArgumentException("해당 작성자는 존재하지 않습니다.")
+                () -> new IllegalArgumentException("해당 작성자는 존재하지 않습니다.")
         );
     }
 }

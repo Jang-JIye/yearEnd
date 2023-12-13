@@ -44,6 +44,12 @@ public class S3Controller {
         return s3Service.getMonthPhotos(month);
     }
 
+    @GetMapping("/api/photo/last-photos")
+    @Operation(summary = "월별 최신 사진 리스트 조회", description = "월별 최신 사진 리스트 조회 API 입니다.")
+    public List<List<PhotoResponseDto>> getLastPhotoByMonth() {
+        return s3Service.getLastPhotoByMonth();
+    }
+
     @DeleteMapping("/api/photo/{id}")
     @Operation(summary = "사진 삭제", description = "사진 삭제 API 입니다.")
     public ResponseEntity<String> deletePhoto(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
