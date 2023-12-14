@@ -3,6 +3,8 @@ package com.future.yearend.user;
 import com.future.yearend.common.UserRoleEnum;
 import com.future.yearend.memo.Memo;
 import com.future.yearend.memo.MemoRepository;
+import com.future.yearend.photo.Photo;
+import com.future.yearend.photo.S3Repository;
 import com.future.yearend.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -18,6 +21,7 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private final MemoRepository memoRepository;
+    private final S3Repository s3Repository;
     private final JwtUtil jwtUtil;
 
     @Value("${ADMIN_TOKEN}")
@@ -60,18 +64,20 @@ public class UserService {
     public ResponseEntity<UserResponseDto> getUserByUsername(String username, User user) {
         User existUser = checkUser(user); // 유저 확인
         checkAuthority(existUser, user); //권한 확인
-        if (!user.getUserRole().equals(UserRoleEnum.USER)) {
+        if (!user.getUserRole().equals(UserRoleEnum.ADMIN)) {
             throw new IllegalArgumentException("어드민 계정이 아닙니다.");
         }
         User findUser = findUser(username);
-        UserResponseDto userResponseDto = new UserResponseDto(findUser);
+        List<Memo> memoList = memoRepository.findAllByUser(findUser);
+        List<Photo> photoList = s3Repository.findAllByUser(findUser);
+        UserResponseDto userResponseDto = new UserResponseDto(findUser, memoList, photoList);
         return ResponseEntity.ok(userResponseDto);
     }
 
     public ResponseEntity<UserResponseDto> getUserByNickname(String nickname, User user) {
         User existUser = checkUser(user); // 유저 확인
         checkAuthority(existUser, user); //권한 확인
-        if (!user.getUserRole().equals(UserRoleEnum.USER)) {
+        if (!user.getUserRole().equals(UserRoleEnum.ADMIN)) {
             throw new IllegalArgumentException("어드민 계정이 아닙니다.");
         }
         Memo findMemo = findMemo(nickname);

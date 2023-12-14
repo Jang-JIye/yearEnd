@@ -22,7 +22,7 @@ public class UserController {
         return userService.signup(response, loginRequestDto);
     }
     @GetMapping("/api/user")
-    @Operation(summary = "사용자 조회", description = "사용자 조회 API 입니다.")
+    @Operation(summary = "사용자 조회(본인)", description = "사용자 조회(본인) API 입니다.")
     public ResponseEntity<UserResponseDto> getUsernameAndPhoneNum(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return userService.getUsernameAndPhoneNum(userDetails.getUser());
     }
