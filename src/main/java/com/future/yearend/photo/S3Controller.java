@@ -40,10 +40,9 @@ public class S3Controller {
 
     @GetMapping("/api/photo/month/{month}")
     @Operation(summary = "사진 월별 조회", description = "사진 월별 조회 API 입니다.")
-    public List<PhotoResponseDto> getMonthPhotos(@PathVariable String month,
-                                                 @RequestParam(defaultValue = "0") int page,
-                                                 @RequestParam(defaultValue = "3") int size) {
-        return s3Service.getMonthPhotos(month, page, size);
+    public List<PhotoResponseDto> getMonthPhotos(@PathVariable String month)
+                                                  {
+        return s3Service.getMonthPhotos(month);
     }
 
     @GetMapping("/api/photo/last-photos")
@@ -51,6 +50,13 @@ public class S3Controller {
     public List<PhotoResponseDto> getLatestPhotoOfEachMonth() {
         return s3Service.getLatestPhotoOfEachMonth();
     }
+
+    @GetMapping("/api/photo/user-photo")
+    @Operation(summary = "사용자별 사진 조회", description = "내가 올린 사진 조회 API 입니다.")
+    public List<PhotoResponseDto> getUserPhotos(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return s3Service.getUserPhotos(userDetails.getUser());
+    }
+
 
     @DeleteMapping("/api/photo/{id}")
     @Operation(summary = "사진 삭제", description = "사진 삭제 API 입니다.")

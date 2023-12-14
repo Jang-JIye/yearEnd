@@ -75,61 +75,39 @@ public class S3Service {
         return ResponseEntity.ok(photoResponseDto);
     }
 
-    public List<PhotoResponseDto> getMonthPhotos(String month, int page, int size) {
-        List<Photo> monthPhotoList = s3Repository.findAllByMonth(month);
+    public List<PhotoResponseDto> getMonthPhotos(String month) {
+        List<Photo> monthPhotoList = s3Repository.findAllByMonthOrderByCreatedAtDesc(month);
 
         if (monthPhotoList == null || monthPhotoList.isEmpty()) {
             throw new IllegalArgumentException("해당 월에 등록된 사진이 없습니다.");
         }
-        int start = Math.min(page * size, monthPhotoList.size());
-        int end = Math.min(start + size, monthPhotoList.size());
-
-        if (start > end) {
-            throw new IllegalArgumentException("요청 페이지가 올바르지 않습니다.");
-        }
-        return monthPhotoList.subList(start, end).stream()
+        return monthPhotoList.stream()
                 .map(PhotoResponseDto::new)
                 .collect(Collectors.toList());
     }
 
+    public List<PhotoResponseDto> getLatestPhotoOfEachMonth() {
+        List<PhotoResponseDto> latestPhotosByMonth = new ArrayList<>();
 
-//public List<PhotoResponseDto> getLatestPhotoOfEachMonth() {
-//    List<List<Photo>> photosByMonth = new ArrayList<>();
-//
-//    for (int i = 1; i <= 12; i++) {
-//        String month = String.valueOf(i);
-//        List<Photo> monthPhotoList = s3Repository.findLatestPhotosByMonth(month);
-//        photosByMonth.add(monthPhotoList);
-//    }
-//    return photosByMonth.stream()
-//            .filter(Objects::nonNull)
-//            .map(monthPhotos -> {
-//                if (monthPhotos.isEmpty()) {
-//                    return null;
-//                }
-//                return monthPhotos.stream()
-//                        .max(Comparator.comparing(Photo::getCreatedAt))
-//                        .map(PhotoResponseDto::new)
-//                        .orElse(null);
-//            })
-//            .collect(Collectors.toList());
-//}
-public List<PhotoResponseDto> getLatestPhotoOfEachMonth() {
-    List<PhotoResponseDto> latestPhotosByMonth = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            String month = String.valueOf(i);
+            List<Photo> monthPhotoList = s3Repository.findLatestPhotosByMonth(month);
 
-    for (int i = 1; i <= 12; i++) {
-        String month = String.valueOf(i);
-        List<Photo> monthPhotoList = s3Repository.findLatestPhotosByMonth(month);
-
-        if (monthPhotoList != null && !monthPhotoList.isEmpty()) {
-            monthPhotoList.stream()
-                    .max(Comparator.comparing(Photo::getCreatedAt)).
-                    ifPresent(latestPhotoOfTheMonth -> latestPhotosByMonth.add(new PhotoResponseDto(latestPhotoOfTheMonth)));
+            if (monthPhotoList != null && !monthPhotoList.isEmpty()) {
+                monthPhotoList.stream()
+                        .max(Comparator.comparing(Photo::getCreatedAt)).
+                        ifPresent(latestPhotoOfTheMonth -> latestPhotosByMonth.add(new PhotoResponseDto(latestPhotoOfTheMonth)));
+            }
         }
+        return latestPhotosByMonth;
     }
-    return latestPhotosByMonth;
-}
 
+    public List<PhotoResponseDto> getUserPhotos(User user) {
+        User existsUser = findUser(user.getId());
+        List<Photo> photoList = s3Repository.findAllByUser(existsUser);
+
+        return photoList.stream().map(PhotoResponseDto::new).collect(Collectors.toList());
+    }
 
     public ResponseEntity<String> deletePhoto(Long id, User user) {
         User existsUser = findUser(user.getId());
@@ -140,7 +118,7 @@ public List<PhotoResponseDto> getLatestPhotoOfEachMonth() {
         s3Repository.delete(photo);
         return ResponseEntity.ok("삭제 성공!");
     }
-
+//----------------------------------------------------------------------------------------------------------------------
     private Photo findPhoto(Long id) {
         return s3Repository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("해당 이미지가 존재하지 않습니다.")
