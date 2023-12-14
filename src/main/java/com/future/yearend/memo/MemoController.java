@@ -66,7 +66,7 @@ public class MemoController {
     }
 
     @GetMapping("/year-end/user-memo")
-    @Operation(summary = "사용자별 소망 조회", description = "사용자별 소망 조회 API 입니다.")
+    @Operation(summary = "사용자별 소망 조회", description = "내가 올린 소망 조회 API 입니다.")
     public List<MemoResponseDto> getUserMemo(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return memoService.getUserMemo(userDetails.getUser());
     }
