@@ -7,8 +7,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,19 +31,27 @@ public class UserController {
     }
 
     //------------- admin ----------------
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/api/admin/username/{username}")
-    @Operation(summary = "어드민 사용자 조회", description = "사용자 이름으로 조회하는 API 입니다.")
-    public ResponseEntity<UserResponseDto> getUserByUsername(@PathVariable String username,
+    @Operation(summary = "어드민 : 사용자 조회(by username)", description = "사용자 이름으로 조회하는 API 입니다.")
+    public ResponseEntity<UserAllResponseDto> getUserByUsername(@PathVariable String username,
                                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return userService.getUserByUsername(username, userDetails.getUser());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/api/admin/nickname/{nickname}")
-    @Operation(summary = "어드민 사용자 닉네임 조회", description = "사용자 닉네임으로 조회하는 API 입니다.")
-    public ResponseEntity<UserResponseDto> getUserByNickname(@PathVariable String nickname,
+    @Operation(summary = "어드민 : 사용자 조회(by nickname)", description = "사용자 닉네임으로 조회하는 API 입니다.")
+    public ResponseEntity<UserAllResponseDto> getUserByNickname(@PathVariable String nickname,
                                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return userService.getUserByNickname(nickname, userDetails.getUser());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/api/admin/users")
+    @Operation(summary = "어드민 : 사용자 전체 조회", description = "사용자 전체 조회 API 입니다.")
+    public List<UserResponseDto> getAllUsers(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return userService.getAllUsers(userDetails.getUser());
+    }
 
 }

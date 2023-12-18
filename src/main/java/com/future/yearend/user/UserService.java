@@ -3,6 +3,7 @@ package com.future.yearend.user;
 import com.future.yearend.common.UserRoleEnum;
 import com.future.yearend.memo.Memo;
 import com.future.yearend.memo.MemoRepository;
+import com.future.yearend.memo.MemoResponseDto;
 import com.future.yearend.photo.Photo;
 import com.future.yearend.photo.S3Repository;
 import com.future.yearend.util.JwtUtil;
@@ -11,10 +12,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +27,7 @@ public class UserService {
     private final MemoRepository memoRepository;
     private final S3Repository s3Repository;
     private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${ADMIN_TOKEN}")
     private String ADMIN_TOKEN;
@@ -30,17 +35,19 @@ public class UserService {
     public ResponseEntity<String> signup(HttpServletResponse response, LoginRequestDto loginRequestDto) {
         String username = loginRequestDto.getUsername();
         String phoneNum = loginRequestDto.getPhoneNum();
-        UserRoleEnum userRole = UserRoleEnum.USER;
-
-        if (loginRequestDto.getAdminToken().equals(ADMIN_TOKEN)) {
-            userRole = UserRoleEnum.ADMIN;
-        }
         Optional<User> existUser = userRepository.findByUsernameAndPhoneNum(username, phoneNum);
+        UserRoleEnum userRole;
+        // 이미 회원인 경우
         if (existUser.isPresent()) {
-            String token = jwtUtil.createToken(username, userRole, phoneNum);
+            String token = jwtUtil.createToken(username, existUser.get().getUserRole(), phoneNum);
             response.addHeader("Authorization", token);
         } else {
             // 회원가입
+            if (loginRequestDto.getAdminToken() != null && loginRequestDto.getAdminToken().equals(ADMIN_TOKEN)) {
+                userRole = UserRoleEnum.ADMIN;
+            } else {
+                userRole = UserRoleEnum.USER;
+            }
             User user = new User(username, phoneNum, userRole);
             userRepository.save(user);
             //로그인
@@ -50,7 +57,13 @@ public class UserService {
             String token = jwtUtil.createToken(username, userRole,phoneNum);
             response.addHeader("Authorization", token);
         }
-        return ResponseEntity.status(HttpStatus.OK).body("반가워요!");
+        User findUser = findUser(username);
+        if (findUser.getUserRole().equals(UserRoleEnum.ADMIN)) {
+            return ResponseEntity.status(HttpStatus.OK) //HttpStatus.OK 로 하면 header에 /admin이 잘 들어가 있음.
+                    .header("Location", "/admin")
+                    .body("admin 페이지로 이동합니다.");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(username+"님 반가워요!");
     }
 
     public ResponseEntity<UserResponseDto> getUsernameAndPhoneNum(User user) {
@@ -61,7 +74,7 @@ public class UserService {
         return ResponseEntity.ok(userResponseDto);
     }
 
-    public ResponseEntity<UserResponseDto> getUserByUsername(String username, User user) {
+    public ResponseEntity<UserAllResponseDto> getUserByUsername(String username, User user) {
         User existUser = checkUser(user); // 유저 확인
         checkAuthority(existUser, user); //권한 확인
         if (!user.getUserRole().equals(UserRoleEnum.ADMIN)) {
@@ -70,11 +83,11 @@ public class UserService {
         User findUser = findUser(username);
         List<Memo> memoList = memoRepository.findAllByUser(findUser);
         List<Photo> photoList = s3Repository.findAllByUser(findUser);
-        UserResponseDto userResponseDto = new UserResponseDto(findUser, memoList, photoList);
-        return ResponseEntity.ok(userResponseDto);
+        UserAllResponseDto userAllResponseDto = new UserAllResponseDto(findUser, memoList, photoList);
+        return ResponseEntity.ok(userAllResponseDto);
     }
 
-    public ResponseEntity<UserResponseDto> getUserByNickname(String nickname, User user) {
+    public ResponseEntity<UserAllResponseDto> getUserByNickname(String nickname, User user) {
         User existUser = checkUser(user); // 유저 확인
         checkAuthority(existUser, user); //권한 확인
         if (!user.getUserRole().equals(UserRoleEnum.ADMIN)) {
@@ -82,8 +95,18 @@ public class UserService {
         }
         Memo findMemo = findMemo(nickname);
         User findUser = findUser(findMemo.getUsername());
-        UserResponseDto userResponseDto = new UserResponseDto(findUser);
-        return ResponseEntity.ok(userResponseDto);
+        UserAllResponseDto userAllResponseDto = new UserAllResponseDto(findUser);
+        return ResponseEntity.ok(userAllResponseDto);
+    }
+
+    public List<UserResponseDto> getAllUsers(User user) {
+        User existUser = checkUser(user); // 유저 확인
+        checkAuthority(existUser, user); //권한 확인
+        if (!user.getUserRole().equals(UserRoleEnum.ADMIN)) {
+            throw new IllegalArgumentException("어드민 계정이 아닙니다.");
+        }
+        List<User> userList = userRepository.findAll();
+        return userList.stream().map(UserResponseDto::new).collect(Collectors.toList());
     }
 
     // 사용자 확인 메서드
