@@ -79,7 +79,9 @@ public class S3Service {
         List<Photo> monthPhotoList = s3Repository.findAllByMonthOrderByCreatedAtDesc(month);
 
         if (monthPhotoList == null || monthPhotoList.isEmpty()) {
-            throw new IllegalArgumentException("해당 월에 등록된 사진이 없습니다.");
+            String defaultPhotoURL = defaultURL(month);
+            PhotoResponseDto defaultPhoto = new PhotoResponseDto(defaultPhotoURL, month);
+            return Collections.singletonList(defaultPhoto);
         }
         return monthPhotoList.stream()
                 .map(PhotoResponseDto::new)
@@ -92,15 +94,25 @@ public class S3Service {
         for (int i = 1; i <= 12; i++) {
             String month = String.valueOf(i);
             List<Photo> monthPhotoList = s3Repository.findLatestPhotosByMonth(month);
+            if (monthPhotoList == null || monthPhotoList.isEmpty()) {
+                String defaultPhotoURL = defaultURL(month);
 
-            if (monthPhotoList != null && !monthPhotoList.isEmpty()) {
-                monthPhotoList.stream()
-                        .max(Comparator.comparing(Photo::getCreatedAt)).
-                        ifPresent(latestPhotoOfTheMonth -> latestPhotosByMonth.add(new PhotoResponseDto(latestPhotoOfTheMonth)));
+                latestPhotosByMonth.add(new PhotoResponseDto(defaultPhotoURL, month));
+            } else {
+                Photo latestPhotoOfTheMonth = monthPhotoList.stream()
+                        .max(Comparator.comparing(Photo::getCreatedAt))
+                        .orElse(null);
+                if (latestPhotoOfTheMonth != null) {
+                    latestPhotosByMonth.add(new PhotoResponseDto(latestPhotoOfTheMonth));
+                } else {
+                    String defaultPhotoURL = defaultURL(month);
+                    latestPhotosByMonth.add(new PhotoResponseDto(defaultPhotoURL, month));
+                }
             }
         }
         return latestPhotosByMonth;
     }
+
 
     public List<PhotoResponseDto> getUserPhotos(User user) {
         User existsUser = findUser(user.getId());
@@ -129,5 +141,38 @@ public class S3Service {
         return userRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("해당 작성자는 존재하지 않습니다.")
         );
+    }
+
+    private String defaultURL(String month) {
+        String defaultPhotoURL;
+        switch (month) {
+            case "1" : defaultPhotoURL = "https://s3-yearend.s3.ap-northeast-2.amazonaws.com/%EC%83%88+%ED%8F%B4%EB%8D%94/1.jpg";
+                break;
+            case "2" : defaultPhotoURL = "https://s3-yearend.s3.ap-northeast-2.amazonaws.com/%EC%83%88+%ED%8F%B4%EB%8D%94/2.jpg";
+                break;
+            case "3" : defaultPhotoURL = "https://s3-yearend.s3.ap-northeast-2.amazonaws.com/%EC%83%88+%ED%8F%B4%EB%8D%94/3.jpg";
+                break;
+            case "4" : defaultPhotoURL = "https://s3-yearend.s3.ap-northeast-2.amazonaws.com/%EC%83%88+%ED%8F%B4%EB%8D%94/4.jpg";
+                break;
+            case "5" : defaultPhotoURL = "https://s3-yearend.s3.ap-northeast-2.amazonaws.com/%EC%83%88+%ED%8F%B4%EB%8D%94/5.jpg";
+                break;
+            case "6" : defaultPhotoURL = "https://s3-yearend.s3.ap-northeast-2.amazonaws.com/%EC%83%88+%ED%8F%B4%EB%8D%94/6.jpg";
+                break;
+            case "7" : defaultPhotoURL = "https://s3-yearend.s3.ap-northeast-2.amazonaws.com/%EC%83%88+%ED%8F%B4%EB%8D%94/7.jpg";
+                break;
+            case "8" : defaultPhotoURL = "https://s3-yearend.s3.ap-northeast-2.amazonaws.com/%EC%83%88+%ED%8F%B4%EB%8D%94/8.jpg";
+                break;
+            case "9" : defaultPhotoURL = "https://s3-yearend.s3.ap-northeast-2.amazonaws.com/%EC%83%88+%ED%8F%B4%EB%8D%94/9.jpg";
+                break;
+            case "10" : defaultPhotoURL = "https://s3-yearend.s3.ap-northeast-2.amazonaws.com/%EC%83%88+%ED%8F%B4%EB%8D%94/10.jpg";
+                break;
+            case "11" : defaultPhotoURL = "https://s3-yearend.s3.ap-northeast-2.amazonaws.com/%EC%83%88+%ED%8F%B4%EB%8D%94/11.jpg";
+                break;
+            case "12" : defaultPhotoURL = "https://s3-yearend.s3.ap-northeast-2.amazonaws.com/%EC%83%88+%ED%8F%B4%EB%8D%94/12.jpg";
+                break;
+            default:
+                throw new IllegalArgumentException("잘못된 이미지 GET 방식입니다.");
+        }
+        return defaultPhotoURL;
     }
 }
